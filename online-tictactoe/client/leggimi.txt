@@ -1,0 +1,20 @@
+Se volesse compilare da lei il progetto:
+
+- Ha bisogno di installare MSYS2, una volta aperto bisogna installare:
+
+  1 - il compiler, perchè non è installato di default
+  `pacman -S mingw-w64-x86_64-gcc`
+  
+  2 - la libreria gtkmm4
+  `pacman -S mingw-w64-x86_64-gtkmm4` 
+
+  3 - pkg-config
+  `pacman -S pkg-config`
+
+CREARE LA CARTELLA bin SE NON ESISTENTE
+
+Dopo tutto ciò basta andare nella directory del progetto e fare `make` dal terminale di MSYS2.
+L'eseguibile prodotto è linkato dinamicamente ed è nella cartella bin.
+
+Potrebbero esserci dei problemi perchè windows non trova i file DLL, in quel caso basta aggiungere
+il percorso della directory che li contiene (che dovrebbe essere C:\msys64\mingw64\bin) nella variable di ambiente PATH. 
