@@ -1,7 +1,6 @@
-#include <windows.h>
-#include <winsock2.h>
-
 #include <iostream>
+#include <winsock2.h>
+#include <windows.h>
 
 int main(int argc, char* argv[]) {
   WSADATA wsa;
@@ -36,32 +35,16 @@ int main(int argc, char* argv[]) {
   puts("Connected");
 
   const char* message = "JOIN 3333";
-  // if (send(s, message, strlen(message), 0) < 0) {
-  //   puts("Send failed");
-  //   return 1;
-  // }
-  // // puts("Data Sent\n");
-
-  // size = recv(s, buffer, sizeof(buffer), 0);
-  // printf("Size: %d\t%s\n", size, buffer);
   char buffer[1024];
   int size = -1;
-  for (int i = 0; i < 2; i++) {
-    if (send(s, message, strlen(message), 0) < 0) {
-      puts("Send failed");
-      return 1;
-    }
-   
-    size = recv(s, buffer, sizeof(buffer), 0);
-    printf("Size: %d\t%s\n", size, buffer);
+
+  if (send(s, message, strlen(message), 0) < 0) {
+    printf("Send failed!\n");
+    return 1;
   }
 
-  // while (size != 0) {
-  // }
-  // if (size == -1) {
-  //   fprintf(stderr, "recv: %s (%d)\n", strerror(errno), errno);
-  // }
-  // std::cout << buffer << std::endl;
+  size = recv(s, buffer, sizeof(buffer), 0);
+  printf("Size: %d\t%s\n", size, buffer);
 
   closesocket(s);
   return 0;
