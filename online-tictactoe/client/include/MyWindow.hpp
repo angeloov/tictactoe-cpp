@@ -7,12 +7,14 @@ class MyWindow : public Gtk::Window {
  public:
   MyWindow();
 
-  Socket s;
+  Socket s;  // TCP network socket
   const int WIDTH = 300;
   const int HEIGHT = 380;
 
   Glib::RefPtr<Gio::SimpleActionGroup> actionGroup;
   Glib::RefPtr<Gtk::Builder> m_refBuilder;
+
+  std::unique_ptr<Gtk::MessageDialog> m_pDialog; // Game code dialog
 
   // widgets members
   std::vector<Gtk::Button> gameButtonsList;
@@ -30,7 +32,6 @@ class MyWindow : public Gtk::Window {
   std::string spotMatrix[3][3] = {};
 
   void onButtonClicked(int buttonIndex);
-  void onCreateRoom();
   bool someoneWonTheGame();
 
   void joinMatch();

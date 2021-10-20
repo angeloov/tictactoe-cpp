@@ -7,16 +7,11 @@
 
 MyWindow::MyWindow()
     : currentTurn("O"), mainContainer(Gtk::Orientation::VERTICAL, 0) {
-  // s.sendToServer("CREATEROOM");
-  // std::string msg = s.receiveFromServer();
-  // std::cout << "From server: " << msg << std::endl;
-  // std::string msg = s.receiveFromServer();
-  // std::cout << msg << std::endl;
 
   // Create the action group
   actionGroup = Gio::SimpleActionGroup::create();
-  // add_action("copy", sigc::mem_fun(*this, &ExampleWindow::on_menu_others));
 
+  // Add actions to the action group
   actionGroup->add_action("joinMatch",
                           sigc::mem_fun(*this, &MyWindow::joinMatch));
   actionGroup->add_action("createMatch",
@@ -25,7 +20,7 @@ MyWindow::MyWindow()
 
   insert_action_group("tictactoe", actionGroup);
 
-  // Create the toolbar and add it to a container widget:
+  // Create the menu bar and add it to a container widget
   m_refBuilder = Gtk::Builder::create();
 
   Glib::ustring ui_info =
@@ -66,13 +61,12 @@ MyWindow::MyWindow()
 
   auto object = m_refBuilder->get_object("menu-example");
   auto gmenu = std::dynamic_pointer_cast<Gio::Menu>(object);
+
   if (!gmenu) {
     g_warning("GMenu not found");
   } else {
     auto pMenuBar = Gtk::make_managed<Gtk::PopoverMenuBar>(gmenu);
-
-    // Add the PopoverMenuBar to the window:
-    mainContainer.append(*pMenuBar);
+    mainContainer.append(*pMenuBar); // Add the menu bar to the mainContainer
   }
 
   setupGridContainer();
@@ -86,16 +80,6 @@ MyWindow::MyWindow()
   displayUserInterface();
 }
 
-void MyWindow::joinMatch() { std::cout << "joinMatch()" << std::endl; }
-
-void MyWindow::createMatch() { std::cout << "joinMatch()" << std::endl; }
-void MyWindow::quitApp() { hide(); }
-
-void MyWindow::onCreateRoom() {
-  s.sendToServer("CREATEROOM");
-  std::string res = s.receiveFromServer();
-  std::cout << res << std::endl;
-}
 
 void MyWindow::displayUserInterface() {
   mainContainer.append(currentTurnLabel);
