@@ -11,8 +11,12 @@ class MyWindow : public Gtk::Window {
   const int WIDTH = 300;
   const int HEIGHT = 380;
 
+  Glib::RefPtr<Gio::SimpleActionGroup> actionGroup;
+  Glib::RefPtr<Gtk::Builder> m_refBuilder;
+
   // widgets members
   std::vector<Gtk::Button> gameButtonsList;
+  Gtk::Box mainContainer;
   Gtk::Grid gridContainer;
 
   Gtk::Label currentTurnLabel;
@@ -28,6 +32,10 @@ class MyWindow : public Gtk::Window {
   void onButtonClicked(int buttonIndex);
   void onCreateRoom();
   bool someoneWonTheGame();
+
+  void joinMatch();
+  void createMatch();
+  void quitApp();
 
  private:
   void setupGameButtons();

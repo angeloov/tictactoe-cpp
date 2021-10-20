@@ -5,42 +5,75 @@
 
 #include "Socket.hpp"
 
-MyWindow::MyWindow() : currentTurn("O") {
+MyWindow::MyWindow()
+    : currentTurn("O"), mainContainer(Gtk::Orientation::VERTICAL, 0) {
   // s.sendToServer("CREATEROOM");
   // std::string msg = s.receiveFromServer();
   // std::cout << "From server: " << msg << std::endl;
   // std::string msg = s.receiveFromServer();
   // std::cout << msg << std::endl;
 
-  Glib::RefPtr<Gio::SimpleActionGroup> actionGroup = Gio::SimpleActionGroup::create();
-  actionGroup->add_action("createRoom", sigc::mem_fun(*this, &MyWindow::onCreateRoom));
+  // Create the action group
+  actionGroup = Gio::SimpleActionGroup::create();
+  // add_action("copy", sigc::mem_fun(*this, &ExampleWindow::on_menu_others));
 
-  Glib::RefPtr<Gtk::Builder> m_refBuilder = Gtk::Builder::create();
-  app->set_accel_for_action("example.new", "<Primary>n");
+  actionGroup->add_action("joinMatch",
+                          sigc::mem_fun(*this, &MyWindow::joinMatch));
+  actionGroup->add_action("createMatch",
+                          sigc::mem_fun(*this, &MyWindow::createMatch));
+  actionGroup->add_action("quit", sigc::mem_fun(*this, &MyWindow::quitApp));
+
+  insert_action_group("tictactoe", actionGroup);
+
+  // Create the toolbar and add it to a container widget:
+  m_refBuilder = Gtk::Builder::create();
 
   Glib::ustring ui_info =
-  "<interface>"
-  "  <menu id='menubar'>"
-  "    <submenu>"
-  "      <attribute name='label' translatable='yes'>_File</attribute>"
-  "      <section>"
-  "        <item>"
-  "          <attribute name='label' translatable='yes'>_New</attribute>"
-  "          <attribute name='action'>example.new</attribute>"
-  "          <attribute name='accel'>&lt;Primary&gt;n</attribute>"
-  "        </item>"
-  "      </section>"
-  "      <section>"
-  "        <item>"
-  "          <attribute name='label' translatable='yes'>_Quit</attribute>"
-  "          <attribute name='action'>example.quit</attribute>"
-  "          <attribute name='accel'>&lt;Primary&gt;q</attribute>"
-  "        </item>"
-  "      </section>"
-  "    </submenu>"
-  "</interface>";
+      "<interface>"
+      "  <!-- menubar -->"
+      "  <menu id='menu-example'>"
+      "    <submenu>"
+      "      <attribute name='label' translatable='yes'>Match</attribute>"
+      "      <section>"
+      "        <item>"
+      "          <attribute name='label' translatable='yes'>Join "
+      "match</attribute>"
+      "          <attribute name='action'>tictactoe.joinMatch</attribute>"
+      "          <attribute name='accel'>&lt;Primary&gt;n</attribute>"
+      "        </item>"
+      "        <item>"
+      "          <attribute name='label' translatable='yes'>Create "
+      "match</attribute>"
+      "          <attribute name='action'>tictactoe.createMatch</attribute>"
+      "        </item>"
+      "      </section>"
+      "      <section>"
+      "        <item>"
+      "          <attribute name='label' translatable='yes'>_Quit</attribute>"
+      "          <attribute name='action'>tictactoe.quit</attribute>"
+      "          <attribute name='accel'>&lt;Primary&gt;q</attribute>"
+      "        </item>"
+      "      </section>"
+      "    </submenu>"
+      "  </menu>"
+      "</interface>";
 
-  m_refBuilder->add_from_string(ui_info);
+  try {
+    m_refBuilder->add_from_string(ui_info);
+  } catch (const Glib::Error& ex) {
+    std::cerr << "Building toolbar failed: " << ex.what();
+  }
+
+  auto object = m_refBuilder->get_object("menu-example");
+  auto gmenu = std::dynamic_pointer_cast<Gio::Menu>(object);
+  if (!gmenu) {
+    g_warning("GMenu not found");
+  } else {
+    auto pMenuBar = Gtk::make_managed<Gtk::PopoverMenuBar>(gmenu);
+
+    // Add the PopoverMenuBar to the window:
+    mainContainer.append(*pMenuBar);
+  }
 
   setupGridContainer();
   setupGameButtons();
@@ -53,6 +86,11 @@ MyWindow::MyWindow() : currentTurn("O") {
   displayUserInterface();
 }
 
+void MyWindow::joinMatch() { std::cout << "joinMatch()" << std::endl; }
+
+void MyWindow::createMatch() { std::cout << "joinMatch()" << std::endl; }
+void MyWindow::quitApp() { hide(); }
+
 void MyWindow::onCreateRoom() {
   s.sendToServer("CREATEROOM");
   std::string res = s.receiveFromServer();
@@ -60,8 +98,6 @@ void MyWindow::onCreateRoom() {
 }
 
 void MyWindow::displayUserInterface() {
-  Gtk::Box mainContainer(Gtk::Orientation::VERTICAL, 0);
-
   mainContainer.append(currentTurnLabel);
   mainContainer.append(gridContainer);
 
@@ -69,7 +105,7 @@ void MyWindow::displayUserInterface() {
 }
 
 void MyWindow::onButtonClicked(int buttonIndex) {
-  std::string &currentSpotInMatrix =
+  std::string& currentSpotInMatrix =
       spotMatrix[buttonIndex / 3][buttonIndex % 3];
 
   if (currentSpotInMatrix == "" && !matchIsEnded) {
